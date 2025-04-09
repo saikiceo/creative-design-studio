@@ -52,23 +52,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- アクティブなナビゲーションリンクのハイライト (オプション) ---
     // Requires more complex logic using Intersection Observer API for accuracy
 
-    // --- スクロール रिवीलアニメーション (オプション - Intersection Observer推奨) ---
-    // Basic example (less performant than Intersection Observer)
-    /*
+    // --- スクロール रिवीलアニメーション (Intersection Observer) ---
     const revealElements = document.querySelectorAll('[data-scroll-reveal]');
 
-    function checkReveal() {
-        const windowHeight = window.innerHeight;
-        revealElements.forEach(el => {
-            const elementTop = el.getBoundingClientRect().top;
-            if (elementTop < windowHeight - 100) { // 100px before it enters viewport
-                el.classList.add('revealed');
+    const revealOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1 // 要素の10%が見えたら
+    };
+
+    const revealObserver = new IntersectionObserver(function(entries, observer) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                // アニメーションが終わったら監視を停止
+                entry.target.addEventListener('transitionend', () => {
+                    revealObserver.unobserve(entry.target);
+                }, { once: true });
             }
         });
-    }
+    }, revealOptions);
 
-    window.addEventListener('scroll', checkReveal);
-    checkReveal(); // Initial check
-    */
+    revealElements.forEach(el => {
+        revealObserver.observe(el);
+    });
 
 });
